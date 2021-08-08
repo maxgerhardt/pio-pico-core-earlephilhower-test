@@ -1,27 +1,34 @@
+#ifdef NO_USB
+/* hardware UART*/
+#define SERIAL_TO_USE Serial1
+#else
+/* USB */
+#define SERIAL_TO_USE Serial
+#endif
+/* change to 1 to run blinky demo, change to 0 for LittleFS demo */
+#if 1
 #include <Arduino.h>
-#if 0
 int led = PIN_LED;
 
 void setup() {
   pinMode(led, OUTPUT);
-  Serial.begin(115200);
+  SERIAL_TO_USE.begin(115200);
 }
 
 void loop() {
-  Serial.println("Test");
-//  delay(1000);
-  digitalWrite(led, HIGH);   // turn the LED on (HIGH is the voltage level)
+  SERIAL_TO_USE.println("Test");
+  digitalWrite(led, HIGH);   // turn the LED on
   delay(200);               // wait for a second
-  digitalWrite(led, LOW);    // turn the LED off by making the voltage LOW
+  digitalWrite(led, LOW);    // turn the LED off
   delay(200);               // wait for a second
 }
-#endif 
 
+#else
 #include <LittleFS.h>
 #include <strings.h>
 
 void setup() {
-  Serial.begin(115200);
+  SERIAL_TO_USE.begin(115200);
   delay(5000);
   LittleFS.begin();
   char buff[32];
@@ -31,7 +38,7 @@ void setup() {
     bzero(buff, 32);
     if (f.read((uint8_t *)buff, 31)) {
       sscanf(buff, "%d", &cnt);
-      Serial.printf("I have been run %d times\n", cnt);
+      SERIAL_TO_USE.printf("I have been run %d times\n", cnt);
     }
     f.close();
   }
@@ -44,13 +51,13 @@ void setup() {
     f.close();
   }
 
-  Serial.println("---------------");
+  SERIAL_TO_USE.println("---------------");
   File i = LittleFS.open("file1.txt", "r");
   if (i) {
     while (i.available()) {
-      Serial.write(i.read());
+      SERIAL_TO_USE.write(i.read());
     }
-    Serial.println("---------------");
+    SERIAL_TO_USE.println("---------------");
     i.close();
   }
 }
@@ -58,3 +65,4 @@ void setup() {
 
 void loop() {
 }
+#endif
